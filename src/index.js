@@ -50,11 +50,12 @@ viewer.camera.flyTo({
 
 const makeBox = document.querySelector('#boxbutton');
 const makeCylinder = document.querySelector('#cylinderbutton');
+const makeControllbar = document.querySelector('#controllbar');
 
 makeBox.addEventListener('click', () => {
   const box = viewer.entities.add({
     name: 'Box',
-    position: Cesium.Cartesian3.fromDegrees(126.924, 37.524, 255.0), // 경도, 위도, 높이, 타원체(Ellipsoid.WGS84), 결과를 저장할 객체
+    position: Cesium.Cartesian3.fromDegrees(126.923428, 37.524969, 255.0), // 경도, 위도, 높이, 타원체(Ellipsoid.WGS84), 결과를 저장할 객체
     box: {
       dimensions: new Cesium.Cartesian3(500.0, 500.0, 500.0), // x, y, z
       material: Cesium.Color.WHITE, // 재질
@@ -81,4 +82,18 @@ makeCylinder.addEventListener('click', () => {
   });
   viewer.zoomTo(viewer.entities);
   alert('3D 상자를 생성합니다.');
+});
+
+makeControllbar.addEventListener('change', (e) => {
+  console.log(e.target.value);
+  const transform = Cesium.Transforms.eastNorthUpToFixedFrame(
+    Cesium.Cartesian3.fromDegrees(126.923428, 37.524969)
+  );
+  const camera = viewer.camera;
+
+  camera.constrainedAxis = Cesium.Cartesian3.UNIT_Z;
+  camera.lookAtTransform(
+    transform,
+    new Cesium.Cartesian3(-10000.0, -10000.0, e.target.value)
+  );
 });
