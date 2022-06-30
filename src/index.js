@@ -49,32 +49,31 @@ viewer.camera.flyTo({
 });
 
 const makeBox = document.querySelector('#boxbutton');
+const makeCylinder = document.querySelector('#cylinderbutton');
 
 makeBox.addEventListener('click', () => {
   const box = viewer.entities.add({
     name: 'Box',
-    position: Cesium.Cartesian3.fromDegrees(126.924, 37.524, 255.0),
+    position: Cesium.Cartesian3.fromDegrees(126.924, 37.524, 255.0), // 경도, 위도, 높이, 타원체(Ellipsoid.WGS84), 결과를 저장할 객체
     box: {
-      dimensions: new Cesium.Cartesian3(500.0, 500.0, 500.0),
-      material: Cesium.Color.WHITE,
-      outline: false,
-      outlineColor: Cesium.Color.BLACK,
+      dimensions: new Cesium.Cartesian3(500.0, 500.0, 500.0), // x, y, z
+      material: Cesium.Color.WHITE, // 재질
+      outline: false, // 바깥선
+      outlineColor: Cesium.Color.BLACK, // 바깥선 색깔
     },
   });
   viewer.zoomTo(viewer.entities);
   alert('3D 상자를 생성합니다.');
 });
 
-const makeCylinder = document.querySelector('#cylinderbutton');
-
 makeCylinder.addEventListener('click', () => {
   const cylinder = viewer.entities.add({
     name: 'Cylinder',
     position: Cesium.Cartesian3.fromDegrees(126.907, 37.527, 255.0),
     cylinder: {
-      length: 490,
-      topRadius: 200,
-      bottomRadius: 200,
+      length: 490, // 길이
+      topRadius: 200, // 원통 상단 반지름
+      bottomRadius: 200, // 원통 하단 반지름
       material: Cesium.Color.WHITE,
       outline: false,
       outlineColor: Cesium.Color.BLACK,
