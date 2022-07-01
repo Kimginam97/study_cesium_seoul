@@ -49,6 +49,8 @@ makeSeoulCity.addEventListener('click', () => {
     strokeWidth: 3,
   })
     .then(function (dataSource) {
+      alert('서울시 건물을 생성합니다.');
+
       viewer.dataSources.add(dataSource);
 
       //Get the array of entities
@@ -57,12 +59,11 @@ makeSeoulCity.addEventListener('click', () => {
       for (let i = 0; i < entities.length; i++) {
         let entity = entities[i];
         let height = entity.properties.HEIGHT._value;
+
         //Remove the outlines.
         entity.polygon.outline = false;
-
         entity.polygon.extrudedHeight = height;
       }
-      alert('서울시 건물을 생성합니다.');
     })
     .catch(function (error) {
       //Display any errrors encountered while loading.
@@ -71,12 +72,17 @@ makeSeoulCity.addEventListener('click', () => {
 });
 
 makeSeoulZone.addEventListener('click', () => {
-  const seoulZone = viewer.dataSources.add(
-    Cesium.GeoJsonDataSource.load(
-      'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=48&outputFormat=application%2Fjson&srsname=EPSG:4326'
-    )
-  );
-  alert('서울시 구역을 생성합니다.');
+  const seoulZoneGeoJson =
+    'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=25&outputFormat=application%2Fjson&srsname=EPSG:4326';
+  Cesium.GeoJsonDataSource.load(seoulZoneGeoJson, {})
+    .then(function (dataSource) {
+      alert('서울시 구역을 생성합니다.');
+      viewer.dataSources.add(dataSource);
+    })
+    .catch(function (error) {
+      //Display any errrors encountered while loading.
+      window.alert(error);
+    });
 });
 
 makeBox.addEventListener('click', () => {
