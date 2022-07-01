@@ -11,10 +11,11 @@ const makeBox = document.querySelector('#boxbutton');
 const makeCylinder = document.querySelector('#cylinderbutton');
 const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
+const makeSeoulCity = document.querySelector('#seoulcitybutton');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Cesium.Viewer('cesiumContainer', {
-  terrainProvider: Cesium.createWorldTerrain(),
+  // terrainProvider: Cesium.createWorldTerrain(),
   animation: false,
   baseLayerPicker: false,
   fullscreenButton: false,
@@ -30,7 +31,7 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
 viewer.bottomContainer.style.display = 'none';
 
 // 서울 위치로 카메라 이동
-viewer.camera.flyTo({
+const seoulMove = viewer.camera.flyTo({
   destination: Cesium.Cartesian3.fromDegrees(126.975, 37.4575, 700),
   orientation: {
     heading: Cesium.Math.toRadians(0.0),
@@ -38,19 +39,41 @@ viewer.camera.flyTo({
   },
 });
 
-// viewer.dataSources.add(
-//   Cesium.GeoJsonDataSource.load(
-//     'http://localhost:8080/geoserver/SeoulCity/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SeoulCity%3AF_FAC_BUILDING_11_202206&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326',
-//     {
-//       fill: Cesium.Color.PINK,
-//     }
-//   )
-// );
+makeSeoulCity.addEventListener('click', () => {
+  const seoulCityGeoJson =
+    'http://localhost:8080/geoserver/SeoulCity/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SeoulCity%3AF_FAC_BUILDING_11_202206&maxFeatures=10000&outputFormat=application%2Fjson&srsname=EPSG:4326';
+
+  Cesium.GeoJsonDataSource.load(seoulCityGeoJson, {
+    stroke: Cesium.Color.HOTPINK,
+    fill: Cesium.Color.PINK,
+    strokeWidth: 3,
+  })
+    .then(function (dataSource) {
+      viewer.dataSources.add(dataSource);
+
+      //Get the array of entities
+      const entities = dataSource.entities.values;
+
+      for (let i = 0; i < entities.length; i++) {
+        let entity = entities[i];
+        let height = entity.properties.HEIGHT._value;
+        //Remove the outlines.
+        entity.polygon.outline = false;
+
+        entity.polygon.extrudedHeight = height;
+      }
+      alert('서울시 건물을 생성합니다.');
+    })
+    .catch(function (error) {
+      //Display any errrors encountered while loading.
+      window.alert(error);
+    });
+});
 
 makeSeoulZone.addEventListener('click', () => {
   const seoulZone = viewer.dataSources.add(
     Cesium.GeoJsonDataSource.load(
-      'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326'
+      'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=48&outputFormat=application%2Fjson&srsname=EPSG:4326'
     )
   );
   alert('서울시 구역을 생성합니다.');
@@ -85,7 +108,7 @@ makeCylinder.addEventListener('click', () => {
     },
   });
   viewer.zoomTo(viewer.entities);
-  alert('3D 상자를 생성합니다.');
+  alert('3D 원기둥를 생성합니다.');
 });
 
 makeControllbar.addEventListener('change', (e) => {
