@@ -12,6 +12,7 @@ const makeCylinder = document.querySelector('#cylinderbutton');
 const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
+const cleanBtn = document.querySelector('#cleanbutton');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Cesium.Viewer('cesiumContainer', {
@@ -39,6 +40,7 @@ const seoulMove = viewer.camera.flyTo({
   },
 });
 
+// 서울 도시데이터 생성
 makeSeoulCity.addEventListener('click', () => {
   const seoulCityGeoJson =
     'http://localhost:8080/geoserver/SeoulCity/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SeoulCity%3AF_FAC_BUILDING_11_202206&maxFeatures=10000&outputFormat=application%2Fjson&srsname=EPSG:4326';
@@ -50,7 +52,6 @@ makeSeoulCity.addEventListener('click', () => {
   })
     .then(function (dataSource) {
       alert('서울시 건물을 생성합니다.');
-
       viewer.dataSources.add(dataSource);
 
       //Get the array of entities
@@ -71,9 +72,11 @@ makeSeoulCity.addEventListener('click', () => {
     });
 });
 
+// 서울 구역 생성
 makeSeoulZone.addEventListener('click', () => {
   const seoulZoneGeoJson =
     'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=25&outputFormat=application%2Fjson&srsname=EPSG:4326';
+
   Cesium.GeoJsonDataSource.load(seoulZoneGeoJson, {})
     .then(function (dataSource) {
       alert('서울시 구역을 생성합니다.');
@@ -85,6 +88,7 @@ makeSeoulZone.addEventListener('click', () => {
     });
 });
 
+// 3D상자 생성
 makeBox.addEventListener('click', () => {
   const box = viewer.entities.add({
     name: 'Box',
@@ -100,6 +104,7 @@ makeBox.addEventListener('click', () => {
   alert('3D 상자를 생성합니다.');
 });
 
+// 3D 원기둥 생성
 makeCylinder.addEventListener('click', () => {
   const cylinder = viewer.entities.add({
     name: 'Cylinder',
@@ -117,6 +122,12 @@ makeCylinder.addEventListener('click', () => {
   alert('3D 원기둥를 생성합니다.');
 });
 
+// 초기화 버튼
+cleanBtn.addEventListener('click', () => {
+  viewer.dataSources.removeAll();
+});
+
+// 높이 조절 기능
 makeControllbar.addEventListener('change', (e) => {
   const transform = Cesium.Transforms.eastNorthUpToFixedFrame(
     Cesium.Cartesian3.fromDegrees(126.923428, 37.524969)
