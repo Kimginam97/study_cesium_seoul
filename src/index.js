@@ -12,7 +12,7 @@ const makeCylinder = document.querySelector('#cylinderbutton');
 const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
-const cleanBtn = document.querySelector('#cleanbutton');
+const cleanAllBtn = document.querySelector('#cleanbutton');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Cesium.Viewer('cesiumContainer', {
@@ -123,7 +123,7 @@ makeCylinder.addEventListener('click', () => {
 });
 
 // 초기화 버튼
-cleanBtn.addEventListener('click', () => {
+cleanAllBtn.addEventListener('click', () => {
   viewer.dataSources.removeAll();
 });
 
