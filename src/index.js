@@ -7,15 +7,18 @@ import '../src/css/main.css';
 Cesium.Ion.defaultAccessToken =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
 
+const seoulCityGeoJson =
+  'http://localhost:8080/geoserver/SeoulCity/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SeoulCity%3AF_FAC_BUILDING_11_202206&maxFeatures=10000&outputFormat=application%2Fjson&srsname=EPSG:4326';
+
+const seoulZoneGeoJson =
+  'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=25&outputFormat=application%2Fjson&srsname=EPSG:4326';
+
 const makeBox = document.querySelector('#boxbutton');
 const makeCylinder = document.querySelector('#cylinderbutton');
 const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
 const cleanAllBtn = document.querySelector('#cleanbutton');
-const lookSkyView = document.querySelector('#cesium-button_sky');
-const lookSideView = document.querySelector('#cesium-button_side');
-const lookAirPortView = document.querySelector('#cesium-button_air');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Cesium.Viewer('cesiumContainer', {
@@ -45,9 +48,6 @@ const seoulMove = viewer.camera.flyTo({
 
 // 서울 도시데이터 생성
 makeSeoulCity.addEventListener('click', () => {
-  const seoulCityGeoJson =
-    'http://localhost:8080/geoserver/SeoulCity/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SeoulCity%3AF_FAC_BUILDING_11_202206&maxFeatures=10000&outputFormat=application%2Fjson&srsname=EPSG:4326';
-
   Cesium.GeoJsonDataSource.load(seoulCityGeoJson, {
     stroke: Cesium.Color.HOTPINK,
     fill: Cesium.Color.PINK,
@@ -77,13 +77,36 @@ makeSeoulCity.addEventListener('click', () => {
 
 // 서울 구역 생성
 makeSeoulZone.addEventListener('click', () => {
-  const seoulZoneGeoJson =
-    'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=25&outputFormat=application%2Fjson&srsname=EPSG:4326';
-
-  Cesium.GeoJsonDataSource.load(seoulZoneGeoJson, {})
+  Cesium.GeoJsonDataSource.load(seoulZoneGeoJson, {
+    stroke: Cesium.Color.BLACK,
+    strokeWidth: 3,
+  })
     .then(function (dataSource) {
       alert('서울시 구역을 생성합니다.');
       viewer.dataSources.add(dataSource);
+
+      //Get the array of entities
+      const entities = dataSource.entities.values;
+
+      const colorHash = {};
+      for (let i = 0; i < entities.length; i++) {
+        //For each entity, create a random color based on the state name.
+        //Some states have multiple entities, so we store the color in a
+        //hash so that we use the same color for the entire state.
+        const entity = entities[i];
+        console.log(entity);
+        const name = entity._name;
+        let color = colorHash[name];
+        if (!color) {
+          color = Cesium.Color.fromRandom({
+            alpha: 1.0,
+          });
+          colorHash[name] = color;
+        }
+
+        //Set the polygon material to our random color.
+        entity.polygon.material = color;
+      }
     })
     .catch(function (error) {
       //Display any errrors encountered while loading.
