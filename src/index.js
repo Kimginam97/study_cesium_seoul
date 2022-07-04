@@ -13,12 +13,15 @@ const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
 const cleanAllBtn = document.querySelector('#cleanbutton');
+const lookSkyView = document.querySelector('#cesium-button_sky');
+const lookSideView = document.querySelector('#cesium-button_side');
+const lookAirPortView = document.querySelector('#cesium-button_air');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Cesium.Viewer('cesiumContainer', {
   // terrainProvider: Cesium.createWorldTerrain(),
   animation: false,
-  baseLayerPicker: false,
+  // baseLayerPicker: false,
   fullscreenButton: false,
   // infoBox: false,
   // geocoder: false,
