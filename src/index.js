@@ -22,6 +22,7 @@ const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
 const makeDaejeonCity = document.querySelector('#daejeoncitybutton');
+const makePoint = document.querySelector('#pointbutton');
 const cleanAllBtn = document.querySelector('#cleanbutton');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
@@ -184,6 +185,7 @@ makeCylinder.addEventListener('click', () => {
 // 초기화 버튼
 cleanAllBtn.addEventListener('click', () => {
   viewer.dataSources.removeAll();
+  viewer.entities.removeAll();
 });
 
 // 높이 조절 기능
@@ -198,4 +200,46 @@ makeControllbar.addEventListener('change', (e) => {
     transform,
     new Cesium.Cartesian3(-10000.0, -10000.0, e.target.value)
   );
+});
+
+makePoint.addEventListener('click', () => {
+  const scene = viewer.scene;
+
+  let entity = viewer.entities.add({
+    label: {
+      show: true,
+      showBackground: true,
+      backgroundColor: Cesium.Color.BLACK,
+      font: '25px sans-serif',
+      horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+      verticalOrigin: Cesium.VerticalOrigin.TOP,
+      pixelOffset: new Cesium.Cartesian2(15, 0),
+    },
+  });
+
+  let eventhandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+
+  eventhandler.setInputAction(function (movement) {
+    let cartesian = viewer.camera.pickEllipsoid(
+      movement.endPosition,
+      scene.globe.ellipsoid
+    );
+    if (cartesian) {
+      let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+
+      entity.position = cartesian;
+      entity.label.show = true;
+      entity.label.text =
+        '경도: ' +
+        ('' + longitude).slice(-7) +
+        '\u00B0' +
+        '\n위도: ' +
+        ('' + latitude).slice(-7) +
+        '\u00B0';
+    } else {
+      entity.label.show = false;
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 });
