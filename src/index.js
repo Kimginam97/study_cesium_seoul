@@ -13,11 +13,15 @@ const seoulCityGeoJson =
 const seoulZoneGeoJson =
   'http://localhost:8080/geoserver/Administrative_district/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Administrative_district%3AZ_NGII_N3A_G0100000&maxFeatures=25&outputFormat=application%2Fjson&srsname=EPSG:4326';
 
+const daejeonCityGeoJson =
+  'http://localhost:8080/geoserver/Daejeon_City/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Daejeon_City%3AF_FAC_BUILDING_30_202206&maxFeatures=10000&outputFormat=application%2Fjson&srsname=EPSG:4326';
+
 const makeBox = document.querySelector('#boxbutton');
 const makeCylinder = document.querySelector('#cylinderbutton');
 const makeControllbar = document.querySelector('#controllbar');
 const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
+const makeDaejeonCity = document.querySelector('#daejeoncitybutton');
 const cleanAllBtn = document.querySelector('#cleanbutton');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
@@ -55,6 +59,35 @@ makeSeoulCity.addEventListener('click', () => {
   })
     .then(function (dataSource) {
       alert('서울시 건물을 생성합니다.');
+      viewer.dataSources.add(dataSource);
+
+      //Get the array of entities
+      const entities = dataSource.entities.values;
+
+      for (let i = 0; i < entities.length; i++) {
+        let entity = entities[i];
+        let height = entity.properties.HEIGHT._value;
+
+        //Remove the outlines.
+        entity.polygon.outline = false;
+        entity.polygon.extrudedHeight = height;
+      }
+    })
+    .catch(function (error) {
+      //Display any errrors encountered while loading.
+      window.alert(error);
+    });
+});
+
+// 서울 도시데이터 생성
+makeDaejeonCity.addEventListener('click', () => {
+  Cesium.GeoJsonDataSource.load(daejeonCityGeoJson, {
+    stroke: Cesium.Color.HOTPINK,
+    fill: Cesium.Color.PINK,
+    strokeWidth: 3,
+  })
+    .then(function (dataSource) {
+      alert('대전시 건물을 생성합니다.');
       viewer.dataSources.add(dataSource);
 
       //Get the array of entities
