@@ -128,7 +128,6 @@ makeSeoulZone.addEventListener('click', () => {
         //Some states have multiple entities, so we store the color in a
         //hash so that we use the same color for the entire state.
         const entity = entities[i];
-        console.log(entity);
         const name = entity._name;
         let color = colorHash[name];
         if (!color) {
@@ -202,10 +201,12 @@ makeControllbar.addEventListener('change', (e) => {
   );
 });
 
+// 위도 경도 좌표표시
 makePoint.addEventListener('click', () => {
   const scene = viewer.scene;
 
-  let entity = viewer.entities.add({
+  // 라벨 설정 추가
+  const entity = viewer.entities.add({
     label: {
       show: true,
       showBackground: true,
@@ -217,9 +218,12 @@ makePoint.addEventListener('click', () => {
     },
   });
 
-  let eventhandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+  // 사용자 입력 이벤트 처리
+  const eventhandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
 
+  // 입력이벤트 실행할 함수 설정
   eventhandler.setInputAction(function (movement) {
+    //타원체 또는 지도 선택
     let cartesian = viewer.camera.pickEllipsoid(
       movement.endPosition,
       scene.globe.ellipsoid
