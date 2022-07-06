@@ -188,7 +188,7 @@ makeCylinder.addEventListener('click', () => {
 cleanAllBtn.addEventListener('click', () => {
   viewer.dataSources.removeAll();
   viewer.entities.removeAll();
-  handler.destroy();
+  handler.removeInputAction();
 });
 
 // 높이 조절 기능
