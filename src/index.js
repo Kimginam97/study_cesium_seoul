@@ -23,6 +23,7 @@ const makeSeoulZone = document.querySelector('#seoulzonebutton');
 const makeSeoulCity = document.querySelector('#seoulcitybutton');
 const makeDaejeonCity = document.querySelector('#daejeoncitybutton');
 const makePoint = document.querySelector('#pointbutton');
+const makeLine = document.querySelector('#linebutton');
 const cleanAllBtn = document.querySelector('#cleanbutton');
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
@@ -38,6 +39,8 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   navigationHelpButton: false,
   timeline: false,
 });
+
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
 // 밑에 로고 삭제
 viewer.bottomContainer.style.display = 'none';
@@ -185,6 +188,7 @@ makeCylinder.addEventListener('click', () => {
 cleanAllBtn.addEventListener('click', () => {
   viewer.dataSources.removeAll();
   viewer.entities.removeAll();
+  handler.destroy();
 });
 
 // 높이 조절 기능
@@ -218,11 +222,8 @@ makePoint.addEventListener('click', () => {
     },
   });
 
-  // 사용자 입력 이벤트 처리
-  const eventhandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-
   // 입력이벤트 실행할 함수 설정
-  eventhandler.setInputAction(function (movement) {
+  handler.setInputAction(function (movement) {
     //타원체 또는 지도 선택
     let cartesian = viewer.camera.pickEllipsoid(
       movement.endPosition,
@@ -246,4 +247,85 @@ makePoint.addEventListener('click', () => {
       entity.label.show = false;
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+});
+
+makeLine.addEventListener('click', () => {
+  // Drawing mode. Initially only line is supported
+  let drawingMode = 'line';
+  let activeShapePoints = [];
+  let activeShape;
+  let floatingPoint;
+
+  // 마우스 왼쪽 클릭시 shape 그리기
+  handler.setInputAction(function (event) {
+    let position = viewer.scene.pickPosition(event.position);
+
+    if (Cesium.defined(position)) {
+      if (activeShapePoints.length === 0) {
+        floatingPoint = createPoint(position);
+        activeShapePoints.push(position);
+        let dynamicPositions = new Cesium.CallbackProperty(function () {
+          return activeShapePoints;
+        }, false);
+        activeShape = drawShape(dynamicPositions);
+      }
+      activeShapePoints.push(position);
+      createPoint(position);
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  // 마우스 이동시 그림
+  handler.setInputAction(function (event) {
+    if (Cesium.defined(floatingPoint)) {
+      let newPosition = viewer.scene.pickPosition(event.endPosition);
+      if (Cesium.defined(newPosition)) {
+        floatingPoint.position.setValue(newPosition);
+        activeShapePoints.pop();
+        activeShapePoints.push(newPosition);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  // 마우스 오른쪽 클릭시 그리기 종료
+  handler.setInputAction(function (event) {
+    terminateShape();
+  }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+  function createPoint(clickPosition) {
+    const point = viewer.entities.add({
+      position: clickPosition,
+      point: {
+        show: true,
+        color: Cesium.Color.Yellow,
+        pixelSize: 7,
+        heightReference: Cesium.HeightReference.NONE,
+      },
+    });
+    return point;
+  }
+
+  function drawShape(positionData) {
+    let shape;
+    shape = viewer.entities.add({
+      polyline: {
+        positions: positionData,
+        material: new Cesium.ColorMaterialProperty(
+          Cesium.Color.YELLOW.withAlpha(0.7)
+        ),
+        clampToGround: false,
+        width: 3,
+      },
+    });
+    return shape;
+  }
+
+  function terminateShape() {
+    activeShapePoints.pop();
+    drawShape(activeShapePoints);
+    viewer.entities.remove(floatingPoint);
+    viewer.entities.remove(activeShape);
+    floatingPoint = undefined;
+    activeShape = undefined;
+    activeShapePoints = [];
+  }
 });
