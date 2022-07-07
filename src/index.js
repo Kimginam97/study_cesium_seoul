@@ -251,6 +251,9 @@ makePoint.addEventListener('click', () => {
 
 makeLinePg.addEventListener('click', (event) => {
   function createPoint(clickPosition) {
+    if (event.target.value === 'null') {
+      return;
+    }
     const point = viewer.entities.add({
       position: clickPosition,
       point: {
