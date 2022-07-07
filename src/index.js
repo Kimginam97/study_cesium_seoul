@@ -258,12 +258,13 @@ makeLine.addEventListener('click', () => {
 
   // 마우스 왼쪽 클릭시 shape 그리기
   handler.setInputAction(function (event) {
-    let position = viewer.scene.pickPosition(event.position);
+    let position = viewer.scene.pickPosition(event.position); // 깊이 버퍼와 창 위치에서 재구성된 데카르트(3차원 좌표) 위치를 반환
 
     if (Cesium.defined(position)) {
       if (activeShapePoints.length === 0) {
         floatingPoint = createPoint(position);
         activeShapePoints.push(position);
+        //속성이 평가될 때 호출되는 함수
         let dynamicPositions = new Cesium.CallbackProperty(function () {
           return activeShapePoints;
         }, false);
@@ -276,6 +277,7 @@ makeLine.addEventListener('click', () => {
 
   // 마우스 이동시 그림
   handler.setInputAction(function (event) {
+    // 객체가 있으면 true
     if (Cesium.defined(floatingPoint)) {
       let newPosition = viewer.scene.pickPosition(event.endPosition);
       if (Cesium.defined(newPosition)) {
@@ -298,7 +300,7 @@ makeLine.addEventListener('click', () => {
         show: true,
         color: Cesium.Color.Yellow,
         pixelSize: 7,
-        heightReference: Cesium.HeightReference.NONE,
+        heightReference: Cesium.HeightReference.NONE, // 위치가 지형에 고정
       },
     });
     return point;
@@ -306,16 +308,26 @@ makeLine.addEventListener('click', () => {
 
   function drawShape(positionData) {
     let shape;
-    shape = viewer.entities.add({
-      polyline: {
-        positions: positionData,
-        material: new Cesium.ColorMaterialProperty(
-          Cesium.Color.YELLOW.withAlpha(0.7)
-        ),
-        clampToGround: false,
-        width: 3,
-      },
-    });
+    if (drawingMode === 'line') {
+      shape = viewer.entities.add({
+        polyline: {
+          positions: positionData,
+          material: new Cesium.ColorMaterialProperty(
+            Cesium.Color.YELLOW.withAlpha(0.7)
+          ),
+          width: 3,
+        },
+      });
+    } else if (drawingMode === 'polygon') {
+      shape = viewer.entities.add({
+        polygon: {
+          hierarchy: positionData,
+          material: new Cesium.ColorMaterialProperty(
+            Cesium.Color.AQUA.withAlpha(0.15)
+          ),
+        },
+      });
+    }
     return shape;
   }
 
