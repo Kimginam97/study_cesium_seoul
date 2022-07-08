@@ -47,10 +47,10 @@ viewer.bottomContainer.style.display = 'none';
 
 // 서울 위치로 카메라 이동
 const seoulMove = viewer.camera.flyTo({
-  destination: Cesium.Cartesian3.fromDegrees(126.975, 37.4575, 700),
+  destination: Cesium.Cartesian3.fromDegrees(127.01, 37.51, 700),
   orientation: {
     heading: Cesium.Math.toRadians(0.0),
-    pitch: Cesium.Math.toRadians(-15.0),
+    pitch: Cesium.Math.toRadians(0.0),
   },
 });
 
@@ -298,7 +298,7 @@ makeLinePg.addEventListener('click', (event) => {
   handler.setInputAction(function (event) {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
     // we get the correct point when mousing over terrain.
-    const earthPosition = viewer.scene.pickPosition(event.position);
+    const earthPosition = viewer.camera.pickEllipsoid(event.position);
     // `earthPosition` will be undefined if our mouse is not over the globe.
     if (Cesium.defined(earthPosition)) {
       if (activeShapePoints.length === 0) {
@@ -320,7 +320,7 @@ makeLinePg.addEventListener('click', (event) => {
   // 마우스 이동시 그림
   handler.setInputAction(function (event) {
     if (Cesium.defined(floatingPoint)) {
-      const newPosition = viewer.scene.pickPosition(event.endPosition);
+      const newPosition = viewer.camera.pickEllipsoid(event.endPosition);
       if (Cesium.defined(newPosition)) {
         floatingPoint.position.setValue(newPosition);
         activeShapePoints.pop();
