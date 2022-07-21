@@ -231,8 +231,8 @@ makePoint.addEventListener('click', () => {
     );
     if (cartesian) {
       let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-      let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
-      let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
 
       entity.position = cartesian;
       entity.label.show = true;
